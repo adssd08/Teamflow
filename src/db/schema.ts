@@ -251,3 +251,6 @@ export const comments = pgTable("comments", {
     index("comments_task_idx").on(table.taskId),
     index("comments_author_idx").on(table.authorId),
   ],)
+
+
+export type User = typeof users.$inferSelect;
