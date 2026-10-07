@@ -1,7 +1,10 @@
-import {eq} from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
-import {db} from '../db/index.js';
+import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
+import type { DatabaseError } from 'pg';
+import { UniqueConstraintError } from '../errors/uniqueConstraint-error.js';
+import { isUniqueConstraintError } from '../db/errors.js';
 
 type createUserRecord = {
     name: string;
@@ -9,24 +12,32 @@ type createUserRecord = {
     passwordHash: string;
 }
 
-export const createUser = async(
+export const createUser = async (
     input: createUserRecord
 ) => {
-    const [user] = await db
-        .insert(users)
-        .values(input)
-        .returning();
+    try {
+        const [user] = await db
+            .insert(users)
+            .values(input)
+            .returning();
 
-    return user;
+        return user;
+    } catch (error) {
+        if (isUniqueConstraintError(error)) {
+            throw new UniqueConstraintError("Email already exists")
+        }
+
+        throw error;
+    }
 }
 
 export const findUserById = async (id: string) => {
     const [user] = await db
         .select()
         .from(users)
-        .where(eq(users.id,id))
+        .where(eq(users.id, id))
         .limit(1)
-    
+
     return user;
 }
 
@@ -36,6 +47,6 @@ export const findUserByEmail = async (email: string) => {
         .from(users)
         .where(eq(users.email, email))
         .limit(1)
-    
+
     return user;
 }
