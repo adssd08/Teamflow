@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
-import { AppError } from "../errors/app-error.js";
-import { ValidationError } from '../errors/validation-error.js';
+import { AppError } from "../errors/app-error";
+import { ValidationError } from '../errors/validation-error';
 
 type BodyParserError = Error & {
     status?: number;

@@ -4,23 +4,8 @@ import {
     type NextFunction
 } from 'express';
 
-import * as userService from '../services/user.service.js';
-import { asyncHandler } from '../middleware/async-handler.js';
-
-export const createUser = asyncHandler(
-    async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ) => {
-
-        const user = await userService.createUser(req.body);
-        return res.status(201).json({
-            data: user,
-        })
-
-    }
-)
+import * as userService from '../services/user.service';
+import { asyncHandler } from '../middleware/async-handler';
 
 export const getUserById = asyncHandler(
     async (

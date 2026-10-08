@@ -1,8 +1,9 @@
 import express, { type Express, type Request, type Response } from 'express'
-import { env } from './config/env.js'
-import userRoutes from './routes/user.routes.js';
-import { errorHandler } from './middleware/error.middleware.js';
-import { NotFoundError } from './errors/not-found-error.js';
+import { env } from './config/env'
+import userRoutes from './routes/user.routes';
+import authRoutes from './routes/auth.routes';
+import { errorHandler } from './middleware/error.middleware';
+import { NotFoundError } from './errors/not-found-error';
 
 const app: Express = express();
 
@@ -10,6 +11,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/users", userRoutes);
+app.use("/auth", authRoutes);
 
 app.get("/health", (_, res: Response) => {
     res.send({ "status": "ok" })

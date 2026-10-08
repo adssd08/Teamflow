@@ -1,21 +1,14 @@
 import Router from 'express';
 
 import {
-    createUser,
     getUserById
-} from '../controllers/user.controller.js';
+} from '../controllers/user.controller';
 
-import { validate, validateParams } from '../middleware/validate.middleware.js';
+import { validateParams } from '../middleware/validate.middleware';
 
-import { createUserSchema, userIdParamsSchema } from '../validators/user.validator.js';
+import { userIdParamsSchema } from '../validators/user.validator';
 
 const router = Router();
-
-router.post(
-    "/",
-    validate(createUserSchema),
-    createUser,
-)
 
 router.get('/:id',
     validateParams(userIdParamsSchema),

@@ -1,10 +1,9 @@
 import { eq } from 'drizzle-orm';
 
-import { db } from '../db/index.js';
-import { users } from '../db/schema.js';
-import type { DatabaseError } from 'pg';
-import { UniqueConstraintError } from '../errors/uniqueConstraint-error.js';
-import { isUniqueConstraintError } from '../db/errors.js';
+import { db } from '../db/index';
+import { users } from '../db/schema';
+import { UniqueConstraintError } from '../errors/uniqueConstraint-error';
+import { isUniqueConstraintError } from '../db/errors';
 
 type createUserRecord = {
     name: string;
