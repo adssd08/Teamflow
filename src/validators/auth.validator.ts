@@ -6,9 +6,20 @@ const passwordSchema = z
     .refine(
         (password) => Buffer.byteLength(password, "utf8") <= 72,
         {
-            message: "Password must not exceed 72 UTF-8 bytes"
+            message: "Password is too long. Please use a shorter password."
         }
     )
+
+const bcryptPasswordSchema = z
+    .string()
+    .min(1, "Password is required")
+    .refine(
+        (password) =>
+            Buffer.byteLength(password, "utf8") <= 72,
+        {
+            message: "Password is too long. Please use a shorter password.",
+        },
+    );
 
 export const registerSchema = z.object({
     name: z
@@ -27,4 +38,15 @@ export const registerSchema = z.object({
 
 })
 
+export const loginSchema = z.object({
+    email: z
+        .string()
+        .trim()
+        .toLowerCase()
+        .email("Invalid email address"),
+
+    password: bcryptPasswordSchema
+})
+
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
