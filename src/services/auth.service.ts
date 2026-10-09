@@ -4,7 +4,7 @@ import { UnauthorizedError } from "../errors/unauthorized-error"
 import { UniqueConstraintError } from "../errors/uniqueConstraint-error"
 import * as userRepository from "../repositories/user.repository"
 import { hashPassword, verifyPassword } from "../security/password"
-import { signAccessToken } from "../security/token"
+import { signAccessToken, signRefreshToken, verifyRefreshToken, type TokenPayload } from "../security/token"
 import type { LoginInput, RegisterInput } from '../validators/auth.validator'
 
 export const register = async (
@@ -62,8 +62,42 @@ export const login = async (
     }
 
     const accessToken = signAccessToken(user.id)
+    const refreshToken = signRefreshToken(user.id)
 
-    return accessToken
+    return {
+        accessToken,
+        refreshToken
+    }
+}
+
+export const refreshAccessToken = async (
+    refreshToken: string,
+) => {
+    let payload: TokenPayload;
+
+    try {
+        payload = verifyRefreshToken(refreshToken);
+    } catch {
+        throw new UnauthorizedError(
+            "Invalid or expired refresh token"
+        )
+    }
+
+    const user = await userRepository.findUserById(
+        payload.sub,
+    );
+
+    if (!user) {
+        throw new UnauthorizedError(
+            "Invalid refresh token"
+        )
+    }
+
+    const accessToken = signAccessToken(user.id);
+
+    return {
+        accessToken
+    }
 }
 
 export const getCurrentUser = async (

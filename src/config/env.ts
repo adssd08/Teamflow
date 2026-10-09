@@ -1,15 +1,29 @@
-import 'dotenv/config'
+import 'dotenv/config';
 import type { SignOptions } from 'jsonwebtoken';
+import ms, { type StringValue } from 'ms';
 
 const jwtAccessSecret = process.env.JWT_ACCESS_SECRET;
+const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
+
 
 if (!jwtAccessSecret) {
     throw new Error("JWT_ACCESS_SECRET is required");
 }
 
+if (!jwtRefreshSecret) {
+    throw new Error("JWT_REFRESH_SECRET is required");
+}
+
 const jwtAccessExpiresIn = (
     process.env.JWT_ACCESS_EXPIRES_IN || "15m"
 ).trim().toLowerCase();
+
+const jwtRefreshExpiresIn = (
+    process.env.JWT_REFRESH_EXPIRES_IN || "7d"
+).trim().toLowerCase() as StringValue;
+
+const jwtRefreshExpiresInMs = ms(jwtRefreshExpiresIn)
+
 
 function isJwtDuration(value: string): value is NonNullable<SignOptions['expiresIn']> & string {
     return value.length <= 100 &&
@@ -21,9 +35,17 @@ if (!isJwtDuration(jwtAccessExpiresIn)) {
     throw new Error('JWT_ACCESS_EXPIRES_IN must be a positive duration such as "15m", "1h", or "7d"');
 }
 
+if (!isJwtDuration(jwtRefreshExpiresIn)) {
+    throw new Error('JWT_REFRESH_EXPIRES_IN must be a positive duration such as "15m", "1h", or "7d"');
+}
+
 export const env = {
     PORT: Number(process.env.PORT || 3000),
     DB_URL: process.env.DATABASE_URL,
+    nodeEnv: process.env.NODE_ENV ?? "development",
     jwtAccessSecret,
     jwtAccessExpiresIn,
+    jwtRefreshSecret,
+    jwtRefreshExpiresIn,
+    jwtRefreshExpiresInMs
 }

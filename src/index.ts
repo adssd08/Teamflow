@@ -1,4 +1,6 @@
 import express, { type Express, type Request, type Response } from 'express'
+import cookieParser from 'cookie-parser';
+
 import { env } from './config/env'
 import userRoutes from './routes/user.routes';
 import authRoutes from './routes/auth.routes';
@@ -9,6 +11,8 @@ const app: Express = express();
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
 
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);

@@ -1,32 +1,56 @@
-import jwt from 'jsonwebtoken';
+import jwt, { type SignOptions } from 'jsonwebtoken';
 import { env } from '../config/env';
 
-export type AccessTokenPayload = {
+export type TokenPayload = {
     sub: string;
 }
 
 export const signAccessToken = (
     userId: string,
 ): string => {
-    return jwt.sign({
-        sub: userId,
-    },
-        env.jwtAccessSecret,
-        {
-            algorithm: "HS256",
-            expiresIn: env.jwtAccessExpiresIn,
-        }
-    )
+    return signToken(userId, env.jwtAccessSecret, env.jwtAccessExpiresIn)
+}
+
+export const signRefreshToken = (
+    userId: string,
+): string => {
+    return signToken(userId, env.jwtRefreshSecret, env.jwtRefreshExpiresIn)
 }
 
 export const verifyAccessToken = (
     token: string,
-): AccessTokenPayload => {
+): TokenPayload => {
+    return verifyToken(token, env.jwtAccessSecret)
+}
+
+export const verifyRefreshToken = (
+    token: string
+): TokenPayload => {
+    return verifyToken(token, env.jwtRefreshSecret)
+}
+
+export const signToken = (
+    userId: string,
+    secret: string,
+    expiresIn: NonNullable<SignOptions['expiresIn']>,
+): string => {
+    return jwt.sign({
+        sub: userId,
+    },
+        secret,
+        {
+            algorithm: "HS256",
+            expiresIn
+        }
+    )
+}
+
+export const verifyToken = (token: string, secret: string): TokenPayload => {
     const payload = jwt.verify(
         token,
-        env.jwtAccessSecret,
+        secret,
         {
-            algorithms: ["HS256"]
+            algorithms: ["HS256"],
         }
     )
 
@@ -34,9 +58,7 @@ export const verifyAccessToken = (
         typeof payload === "string" ||
         typeof payload.sub !== "string"
     ) {
-        throw new Error(
-            "Invalid access token payload",
-        )
+        throw new Error("Invalid refresh token payload")
     }
 
     return {
