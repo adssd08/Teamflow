@@ -9,102 +9,102 @@ import {
     index
 } from "drizzle-orm/pg-core"
 
-export const users = pgTable("users",{
+export const users = pgTable("users", {
     id: uuid("id").defaultRandom().primaryKey(),
 
-    name: varchar("name",{
+    name: varchar("name", {
         length: 255,
     }).notNull(),
 
-    email: varchar("email",{
+    email: varchar("email", {
         length: 255
     })
-    .notNull()
-    .unique(),
+        .notNull()
+        .unique(),
 
-    passwordHash: varchar("password_hash",{
-        length:255,
+    passwordHash: varchar("password_hash", {
+        length: 255,
     })
-    .notNull(),
+        .notNull(),
 
-    createdAt: timestamp("created_at",{
+    createdAt: timestamp("created_at", {
         withTimezone: true
     })
-    .defaultNow()
-    .notNull(),
+        .defaultNow()
+        .notNull(),
 
-    updatedAt: timestamp("updated_at",{
+    updatedAt: timestamp("updated_at", {
         withTimezone: true,
     })
-    .defaultNow()
-    .notNull()
+        .defaultNow()
+        .notNull()
 })
 
-export const workspaces = pgTable("workspaces",{
+export const workspaces = pgTable("workspaces", {
     id: uuid("id").defaultRandom().primaryKey(),
 
-    name: varchar("name",{
+    name: varchar("name", {
         length: 255
     })
-    .notNull(),
+        .notNull(),
 
     slug: varchar("slug", {
         length: 255
     })
-    .notNull()
-    .unique(),
+        .notNull()
+        .unique(),
 
     createdBy: uuid("created_by")
         .notNull()
-        .references(()=>users.id,{
-            onDelete:"restrict"
+        .references(() => users.id, {
+            onDelete: "restrict"
         }),
 
-    createdAt: timestamp("created_at",{
+    createdAt: timestamp("created_at", {
         withTimezone: true
     })
-    .defaultNow()
-    .notNull(),
+        .defaultNow()
+        .notNull(),
 
-    updatedAt: timestamp("updated_at",{
+    updatedAt: timestamp("updated_at", {
         withTimezone: true,
     })
-    .defaultNow()
-    .notNull()
+        .defaultNow()
+        .notNull()
 
 })
 
-export const workspaceRoleEnum = pgEnum("workspace_role",[
+export const workspaceRoleEnum = pgEnum("workspace_role", [
     "OWNER",
     "ADMIN",
     "MEMBER"
 ])
 
-export const workspace_members = pgTable("workspace_members",{
+export const workspaceMembers = pgTable("workspace_members", {
     id: uuid("id").defaultRandom().primaryKey(),
-    
+
     workspaceId: uuid("workspace_id")
         .notNull()
-        .references(()=>workspaces.id,{
+        .references(() => workspaces.id, {
             onDelete: "cascade"
         }),
 
     userId: uuid("user_id")
         .notNull()
-        .references(()=>users.id,{
-            onDelete:"cascade"
+        .references(() => users.id, {
+            onDelete: "cascade"
         }),
-    
+
     role: workspaceRoleEnum("role")
         .default("MEMBER")
         .notNull(),
 
-    joinedAt: timestamp("joined_at",{
+    joinedAt: timestamp("joined_at", {
         withTimezone: true
     })
-    .defaultNow()
-    .notNull()
-},(table)=> [
+        .defaultNow()
+        .notNull()
+}, (table) => [
     uniqueIndex("workspace_members_workspace_user_unique").on(
         table.workspaceId,
         table.userId
@@ -113,65 +113,65 @@ export const workspace_members = pgTable("workspace_members",{
     index("workspace_members_workspace_idx").on(table.workspaceId)
 ])
 
-export const projects = pgTable("projects",{
+export const projects = pgTable("projects", {
     id: uuid("id").defaultRandom().primaryKey(),
 
     workspaceId: uuid("workspace_id")
         .notNull()
-        .references(()=>workspaces.id,{
+        .references(() => workspaces.id, {
             onDelete: "cascade"
         }),
 
-    name: varchar("name",{
+    name: varchar("name", {
         length: 255,
     })
-    .notNull(),
+        .notNull(),
 
     description: text("description"),
 
     createdBy: uuid("created_by")
         .notNull()
-        .references(()=>users.id,{
+        .references(() => users.id, {
             onDelete: "restrict"
         }),
 
-    createdAt: timestamp("created_at",{
+    createdAt: timestamp("created_at", {
         withTimezone: true
     })
-    .defaultNow()
-    .notNull(),
+        .defaultNow()
+        .notNull(),
 
-    updatedAt: timestamp("updated_at",{
+    updatedAt: timestamp("updated_at", {
         withTimezone: true
     })
-    .defaultNow()
-    .notNull()
-},(table)=> [
+        .defaultNow()
+        .notNull()
+}, (table) => [
     index("project_workspace_idx").on(table.workspaceId)
 ])
 
-export const taskStatusEnum = pgEnum("task_status",[
+export const taskStatusEnum = pgEnum("task_status", [
     "TODO",
     "IN_PROGRESS",
     "DONE"
 ])
 
-export const taskPriorityEnum = pgEnum("task_priority",[
+export const taskPriorityEnum = pgEnum("task_priority", [
     "LOW",
     "MEDIUM",
     "HIGH"
 ])
 
-export const tasks = pgTable("tasks",{
+export const tasks = pgTable("tasks", {
     id: uuid("id").defaultRandom().primaryKey(),
 
     projectId: uuid("project_id")
         .notNull()
-        .references(()=>projects.id,{
-            onDelete:"cascade"
+        .references(() => projects.id, {
+            onDelete: "cascade"
         }),
 
-    title: varchar("title",{
+    title: varchar("title", {
         length: 255,
     })
         .notNull(),
@@ -182,37 +182,37 @@ export const tasks = pgTable("tasks",{
         .default("TODO")
         .notNull(),
 
-     priority: taskPriorityEnum("priority")
-      .default("MEDIUM")
-      .notNull(),
+    priority: taskPriorityEnum("priority")
+        .default("MEDIUM")
+        .notNull(),
 
     assignedTo: uuid("assigned_to").references(() => users.id, {
-      onDelete: "set null",
+        onDelete: "set null",
     }),
 
     createdBy: uuid("created_by")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "restrict",
-      }),
+        .notNull()
+        .references(() => users.id, {
+            onDelete: "restrict",
+        }),
 
     dueDate: timestamp("due_date", {
-      withTimezone: true,
+        withTimezone: true,
     }),
 
     createdAt: timestamp("created_at", {
-      withTimezone: true,
+        withTimezone: true,
     })
-      .defaultNow()
-      .notNull(),
+        .defaultNow()
+        .notNull(),
 
     updatedAt: timestamp("updated_at", {
-      withTimezone: true,
+        withTimezone: true,
     })
-      .defaultNow()
-      .notNull(),
+        .defaultNow()
+        .notNull(),
 
-},(table)=>[
+}, (table) => [
     index("tasks_project_idx").on(table.projectId),
     index("tasks_assigned_to_idx").on(table.assignedTo),
     index("tasks_status_idx").on(table.status),
@@ -222,35 +222,37 @@ export const comments = pgTable("comments", {
     id: uuid("id").defaultRandom().primaryKey(),
 
     taskId: uuid("task_id")
-      .notNull()
-      .references(() => tasks.id, {
-        onDelete: "cascade",
-      }),
+        .notNull()
+        .references(() => tasks.id, {
+            onDelete: "cascade",
+        }),
 
     authorId: uuid("author_id")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "restrict",
-      }),
+        .notNull()
+        .references(() => users.id, {
+            onDelete: "restrict",
+        }),
 
     content: text("content").notNull(),
 
     createdAt: timestamp("created_at", {
-      withTimezone: true,
+        withTimezone: true,
     })
-      .defaultNow()
-      .notNull(),
+        .defaultNow()
+        .notNull(),
 
     updatedAt: timestamp("updated_at", {
-      withTimezone: true,
+        withTimezone: true,
     })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    index("comments_task_idx").on(table.taskId),
-    index("comments_author_idx").on(table.authorId),
-  ],)
+        .defaultNow()
+        .notNull(),
+},
+    (table) => [
+        index("comments_task_idx").on(table.taskId),
+        index("comments_author_idx").on(table.authorId),
+    ],)
 
 
 export type User = typeof users.$inferSelect;
+export type Workspace = typeof workspaces.$inferSelect
+export type WorkspaceMemberRole = typeof workspaceRoleEnum.enumValues[number]
