@@ -1,19 +1,13 @@
 import { and, eq } from 'drizzle-orm';
 
 import { db } from '../db';
-import { workspaces, workspaceMembers, type WorkspaceMemberRole } from '../db/schema'
+import { workspaces, workspaceMembers } from '../db/schema'
 
 
 type CreateWorkspaceRecord = {
     name: string;
     slug: string;
     createdBy: string;
-}
-
-type CreateWorkspaceMemberRecord = {
-    workspaceId: string;
-    userId: string;
-    role: WorkspaceMemberRole;
 }
 
 export const createWorkspace = async (
@@ -25,17 +19,6 @@ export const createWorkspace = async (
         .returning();
 
     return workspace
-}
-
-export const createWorkspaceMember = async (
-    input: CreateWorkspaceMemberRecord,
-) => {
-    const [member] = await db
-        .insert(workspaceMembers)
-        .values(input)
-        .returning();
-
-    return member;
 }
 
 export const findWorkspacesForUser = async (

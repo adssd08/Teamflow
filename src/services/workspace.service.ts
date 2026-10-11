@@ -2,6 +2,7 @@ import { toWorkspaceDto } from '../dtos/workspace.dto';
 import { NotFoundError } from '../errors';
 
 import * as workspaceRepository from '../repositories/workspace.repository';
+import * as workspaceMemberRepository from '../repositories/workspace-member.repository'
 
 import { createWorkspaceSlug } from '../utils/slug';
 import type { CreateWorkspaceInput, UpdateWorkspaceInput } from '../validators/workspace.validator';
@@ -23,7 +24,7 @@ export const createWorkspace = async (
 
     if (!workspace) throw new Error("Something Went Wrong");
 
-    await workspaceRepository.createWorkspaceMember({
+    await workspaceMemberRepository.createWorkspaceMember({
         workspaceId: workspace.id,
         userId,
         role: "OWNER"

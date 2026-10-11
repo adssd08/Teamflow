@@ -4,6 +4,12 @@ declare global {
             user?: {
                 id: string;
             }
+
+            workspaceMembership?: {
+                workspaceId: string;
+                userId: string;
+                role: "OWNER" | "ADMIN" | "MEMBER";
+            }
         }
     }
 }
