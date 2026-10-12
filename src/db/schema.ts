@@ -255,4 +255,5 @@ export const comments = pgTable("comments", {
 
 export type User = typeof users.$inferSelect;
 export type Workspace = typeof workspaces.$inferSelect
+export type Project = typeof projects.$inferSelect;
 export type WorkspaceMemberRole = typeof workspaceRoleEnum.enumValues[number]

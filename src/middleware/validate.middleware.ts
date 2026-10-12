@@ -10,10 +10,14 @@ export const validate =
             const result = schema.safeParse(req.body);
 
             if (!result.success) {
+                const flattened = result.error.flatten();
                 return next(
                     new ValidationError(
                         "Validation failed",
-                        result.error.flatten().fieldErrors,
+                        {
+                            fieldErrors: flattened.fieldErrors,
+                            formErrors: flattened.formErrors
+                        }
                     )
                 )
             }
@@ -29,10 +33,14 @@ export const validateParams =
             const result = schema.safeParse(req.params);
 
             if (!result.success) {
+                const flattened = result.error.flatten();
                 return next(
                     new ValidationError(
                         "Validation failed",
-                        result.error.flatten().fieldErrors,
+                        {
+                            fieldErrors: flattened.fieldErrors,
+                            formErrors: flattened.formErrors
+                        }
                     )
                 )
             }

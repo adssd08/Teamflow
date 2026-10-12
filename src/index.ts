@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { NotFoundError } from './errors/not-found-error';
 import workspaceRoutes from './routes/workspace.routes';
+import projectRoutes from './routes/project.routes';
 
 const app: Express = express();
 
@@ -18,6 +19,10 @@ app.use(cookieParser());
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/workspaces", workspaceRoutes)
+app.use(
+    "/workspaces/:workspaceId/projects",
+    projectRoutes,
+);
 
 app.get("/health", (_, res: Response) => {
     res.send({ "status": "ok" })
