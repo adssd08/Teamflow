@@ -8,6 +8,7 @@ import { errorHandler } from './middleware/error.middleware';
 import { NotFoundError } from './errors/not-found-error';
 import workspaceRoutes from './routes/workspace.routes';
 import projectRoutes from './routes/project.routes';
+import taskRoutes from './routes/task.routes'
 
 const app: Express = express();
 
@@ -23,6 +24,10 @@ app.use(
     "/workspaces/:workspaceId/projects",
     projectRoutes,
 );
+app.use(
+    "/workspaces/:workspaceId/projects/:projectId/tasks",
+    taskRoutes
+)
 
 app.get("/health", (_, res: Response) => {
     res.send({ "status": "ok" })
