@@ -9,7 +9,7 @@ declare global {
                 workspaceId: string;
                 userId: string;
                 role: "OWNER" | "ADMIN" | "MEMBER";
-            }
+            },
         }
     }
 }

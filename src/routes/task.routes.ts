@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { validate, validateParams } from "../middleware/validate.middleware";
-import { createTaskSchema, projectIdParamsSchema, projectTaskParamsSchema, updateTaskSchema } from "../validators/task.validator";
+import { validate, validateParams, validateQuery } from "../middleware/validate.middleware";
+import { createTaskSchema, projectIdParamsSchema, projectTaskParamsSchema, taskListQuerySchema, updateTaskSchema } from "../validators/task.validator";
 import { authorizeWorkspaceRoles } from "../middleware/wrokspace-authorization.middleware";
 import { createTask, deleteTask, getTask, listTasks, updateTask } from "../controllers/task.controller";
 import { authenticate } from "../middleware/auth.middleware";
@@ -20,6 +20,9 @@ router.get(
         "OWNER",
         "ADMIN",
         "MEMBER"
+    ),
+    validateQuery(
+        taskListQuerySchema
     ),
     listTasks
 

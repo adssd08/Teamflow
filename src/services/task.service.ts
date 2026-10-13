@@ -3,7 +3,7 @@ import * as taskRepository from '../repositories/task.repository'
 import * as projectRepository from '../repositories/project.repository'
 import * as workspaceMemberRepository from '../repositories/workspace-member.repository'
 import { NotFoundError, ValidationError } from '../errors';
-import type { CreateTaskInput, UpdateTaskInput } from '../validators/task.validator';
+import type { CreateTaskInput, TaskListQuery, UpdateTaskInput } from '../validators/task.validator';
 
 const validateAssignee = async (
     workspaceId: string,
@@ -76,16 +76,42 @@ export const createTask = async (
 
 export const listTasks = async (
     workspaceId: string,
-    projectId: string
+    projectId: string,
+    query: TaskListQuery
 ) => {
     await validateProject(
         workspaceId,
         projectId
     )
 
-    return taskRepository.findTasksByProject(
-        projectId
+    const [taskList, total] = await Promise.all([
+        taskRepository
+            .findTasksByProject(
+                projectId,
+                query
+            ),
+        taskRepository.countTasksByProject(
+            projectId,
+            query
+        )
+    ])
+
+    const totalPages = Math.ceil(
+        total / query.limit,
     )
+
+    return {
+        tasks: taskList,
+
+        pagination: {
+            page: query.page,
+            limit: query.limit,
+            total,
+            totalPages,
+            hasNextPage: query.page < totalPages,
+            hasPreviousPage: query.page > 1
+        }
+    }
 }
 
 export const getTask = async (

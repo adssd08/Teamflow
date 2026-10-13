@@ -1,6 +1,7 @@
 import { asyncHandler } from "../middleware/async-handler";
 
 import * as taskService from '../services/task.service';
+import type { TaskListQuery } from "../validators/task.validator";
 
 export const createTask = asyncHandler(
     async (req, res) => {
@@ -23,6 +24,7 @@ export const listTasks = asyncHandler(
         const tasks = await taskService.listTasks(
             req.params.workspaceId as string,
             req.params.projectId as string,
+            res.locals.validatedQuery as TaskListQuery
         )
 
         res.status(200).json({
