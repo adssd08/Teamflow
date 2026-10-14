@@ -216,7 +216,11 @@ export const tasks = pgTable("tasks", {
     index("tasks_project_idx").on(table.projectId),
     index("tasks_assigned_to_idx").on(table.assignedTo),
     index("tasks_status_idx").on(table.status),
-])
+    index("tasks_project_status_idx").on(
+        table.projectId,
+        table.status,
+    ),
+],)
 
 export const comments = pgTable("comments", {
     id: uuid("id").defaultRandom().primaryKey(),
