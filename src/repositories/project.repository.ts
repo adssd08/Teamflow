@@ -40,6 +40,9 @@ export const findProjectInWorkspace = async (
     workspaceId: string,
     projectId: string,
 ) => {
+    console.log(
+        "[DB] findProjectInWorkspace",
+    );
     const [project] = await db
         .select()
         .from(projects)

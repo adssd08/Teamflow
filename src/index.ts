@@ -9,6 +9,7 @@ import { NotFoundError } from './errors/not-found-error';
 import workspaceRoutes from './routes/workspace.routes';
 import projectRoutes from './routes/project.routes';
 import taskRoutes from './routes/task.routes'
+import { connectRedis } from './config/redis';
 
 const app: Express = express();
 
@@ -43,6 +44,25 @@ app.use((req, res, next) => {
 
 app.use(errorHandler)
 
-app.listen(env.PORT, () => {
-    console.log(`App listening on port ${env.PORT}`)
-})
+const startServer = async () => {
+    await connectRedis();
+
+    app.listen(
+        env.PORT,
+        () => {
+            console.log(`App listening on port ${env.PORT}`)
+        }
+    )
+}
+
+startServer().catch(
+    (error) => {
+        console.error(
+            "Failed to start server",
+            error,
+        )
+
+        process.exit(1);
+    }
+)
+

@@ -1,6 +1,17 @@
 import { NotFoundError } from '../errors';
 import * as projectRepository from '../repositories/project.repository';
 import type { CreateProjectInput, UpdateProjectInput } from '../validators/project.validator';
+import { redisClient } from '../config/redis';
+import { getCachedJson, setCachedJson } from './cache.service';
+import type { Project } from '../db/schema';
+
+export const PROJECT_CACHE_TTL_SECONDS = 10;
+
+const projectCacheKey = (
+    workspaceId: string,
+    projectId: string,
+) => `project:${workspaceId}:${projectId}`
+
 
 export const createProject = async (
     workspaceId: string,
@@ -27,6 +38,35 @@ export const getProject = async (
     workspaceId: string,
     projectId: string,
 ) => {
+
+    const key = projectCacheKey(
+        workspaceId,
+        projectId
+    )
+
+    let cachedProject: Project | null = null;
+
+    try {
+        cachedProject = await getCachedJson<Project>(key);
+    } catch (error) {
+        console.error(
+            "Redis read failed",
+            error,
+        )
+    }
+
+    if (cachedProject) {
+        console.log(
+            `[CACHE HIT] ${key}`
+        )
+
+        return cachedProject;
+    }
+
+    console.log(
+        `[CACHE MISS] ${key}`
+    );
+
     const project = await projectRepository.findProjectInWorkspace(
         workspaceId,
         projectId
@@ -37,6 +77,21 @@ export const getProject = async (
             "Project not found"
         )
     }
+
+    try {
+        await setCachedJson(
+            key,
+            project,
+            PROJECT_CACHE_TTL_SECONDS
+        )
+
+    } catch (error) {
+        console.error(
+            "Redis write failed",
+            error
+        )
+    }
+
 
     return project;
 }

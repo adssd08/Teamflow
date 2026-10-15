@@ -47,5 +47,6 @@ export const env = {
     jwtAccessExpiresIn,
     jwtRefreshSecret,
     jwtRefreshExpiresIn,
-    jwtRefreshExpiresInMs
+    jwtRefreshExpiresInMs,
+    redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
 }
