@@ -2,7 +2,6 @@ import { toWorkspaceDto } from '../dtos/workspace.dto';
 import { NotFoundError } from '../errors';
 
 import * as workspaceRepository from '../repositories/workspace.repository';
-import * as workspaceMemberRepository from '../repositories/workspace-member.repository'
 
 import { createWorkspaceSlug } from '../utils/slug';
 import type { CreateWorkspaceInput, UpdateWorkspaceInput } from '../validators/workspace.validator';
@@ -13,24 +12,11 @@ export const createWorkspace = async (
 ) => {
     const slug = createWorkspaceSlug(input.name);
 
-    // TODO:
-    // wrap workspace + OWNER membership creation
-    // in a database transaction
-    const workspace = await workspaceRepository.createWorkspace({
+    const { workspace } = await workspaceRepository.createWorkspaceWithOwner({
         name: input.name,
         slug,
         createdBy: userId
     })
-
-    if (!workspace) throw new Error("Something Went Wrong");
-
-    await workspaceMemberRepository.createWorkspaceMember({
-        workspaceId: workspace.id,
-        userId,
-        role: "OWNER"
-    })
-
-    console.log("Workspace Created: ", workspace)
 
     return toWorkspaceDto(workspace, "OWNER")
 }

@@ -10,15 +10,36 @@ type CreateWorkspaceRecord = {
     createdBy: string;
 }
 
-export const createWorkspace = async (
+export const createWorkspaceWithOwner = async (
     input: CreateWorkspaceRecord,
 ) => {
-    const [workspace] = await db
-        .insert(workspaces)
-        .values(input)
-        .returning();
 
-    return workspace
+    return db.transaction(
+        async (tx) => {
+            const [workspace] = await tx
+                .insert(workspaces)
+                .values(input)
+                .returning()
+
+            if (!workspace) throw new Error("Unable to create workspace");
+
+            const [membership] = await tx
+                .insert(workspaceMembers)
+                .values({
+                    workspaceId: workspace.id,
+                    userId: input.createdBy,
+                    role: "OWNER"
+                })
+                .returning()
+
+            if (!membership) throw new Error("Unable to create membership for the workspace");
+
+            return {
+                workspace,
+                membership,
+            }
+        }
+    )
 }
 
 export const findWorkspacesForUser = async (
