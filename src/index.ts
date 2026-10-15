@@ -9,7 +9,7 @@ import { NotFoundError } from './errors/not-found-error';
 import workspaceRoutes from './routes/workspace.routes';
 import projectRoutes from './routes/project.routes';
 import taskRoutes from './routes/task.routes'
-import { connectRedis } from './config/redis';
+import { connectRedis } from './cache/redis';
 
 const app: Express = express();
 

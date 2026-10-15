@@ -1,16 +1,11 @@
 import { NotFoundError } from '../errors';
 import * as projectRepository from '../repositories/project.repository';
 import type { CreateProjectInput, UpdateProjectInput } from '../validators/project.validator';
-import { redisClient } from '../config/redis';
-import { getCachedJson, setCachedJson } from './cache.service';
+import { deleteCachedValue, getCachedJson, setCachedJson } from '../cache/cache.service';
 import type { Project } from '../db/schema';
+import { projectCacheKey } from '../cache/cache-keys';
 
 export const PROJECT_CACHE_TTL_SECONDS = 10;
-
-const projectCacheKey = (
-    workspaceId: string,
-    projectId: string,
-) => `project:${workspaceId}:${projectId}`
 
 
 export const createProject = async (
@@ -46,14 +41,7 @@ export const getProject = async (
 
     let cachedProject: Project | null = null;
 
-    try {
-        cachedProject = await getCachedJson<Project>(key);
-    } catch (error) {
-        console.error(
-            "Redis read failed",
-            error,
-        )
-    }
+    cachedProject = await getCachedJson<Project>(key);
 
     if (cachedProject) {
         console.log(
@@ -78,20 +66,11 @@ export const getProject = async (
         )
     }
 
-    try {
-        await setCachedJson(
-            key,
-            project,
-            PROJECT_CACHE_TTL_SECONDS
-        )
-
-    } catch (error) {
-        console.error(
-            "Redis write failed",
-            error
-        )
-    }
-
+    await setCachedJson(
+        key,
+        project,
+        PROJECT_CACHE_TTL_SECONDS
+    )
 
     return project;
 }
@@ -113,6 +92,15 @@ export const updateProject = async (
         )
     }
 
+    const key = projectCacheKey(
+        workspaceId,
+        projectId
+    )
+
+    await deleteCachedValue(
+        key,
+    )
+
     return project;
 }
 
@@ -130,4 +118,14 @@ export const deleteProject = async (
             "Project not found"
         )
     }
+
+    const key = projectCacheKey(
+        workspaceId,
+        projectId
+    )
+
+    await deleteCachedValue(
+        key,
+    )
+
 }
