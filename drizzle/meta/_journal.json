@@ -15,6 +15,13 @@
       "when": 1791988529967,
       "tag": "0001_square_stryfe",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792248235879,
+      "tag": "0002_furry_owl",
+      "breakpoints": true
     }
   ]
 }

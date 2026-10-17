@@ -10,7 +10,9 @@ import workspaceRoutes from './routes/workspace.routes';
 import projectRoutes from './routes/project.routes';
 import taskRoutes from './routes/task.routes'
 import workspaceMemberRoutes from './routes/workspace-members.routes'
+import attachmentRoutes from './routes/attachment.routes'
 import { connectRedis } from './cache/redis';
+import { ensureUploadDirectory } from './config/upload';
 
 const app: Express = express();
 
@@ -35,6 +37,11 @@ app.use(
     taskRoutes
 )
 
+app.use(
+    "/workspaces/:workspaceId/projects/:projectId/tasks/:taskId/attachments",
+    attachmentRoutes
+)
+
 app.get("/health", (_, res: Response) => {
     res.send({ "status": "ok" })
 });
@@ -50,6 +57,9 @@ app.use((req, res, next) => {
 app.use(errorHandler)
 
 const startServer = async () => {
+
+    await ensureUploadDirectory();
+
     await connectRedis();
 
     app.listen(

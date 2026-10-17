@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from "../errors/app-error";
 import { ValidationError } from '../errors/validation-error';
+import multer from 'multer';
 
 type BodyParserError = Error & {
     status?: number;
@@ -62,6 +63,30 @@ export const errorHandler = (
                 message: err.message
             }
         })
+    }
+
+    if (err instanceof multer.MulterError) {
+        if (
+            err.code === "LIMIT_FILE_SIZE"
+        ) {
+            return res
+                .status(400)
+                .json({
+                    success: false,
+                    error: {
+                        message: "Attachment exceeds the maximum allowed size",
+                    }
+                })
+        }
+
+        return res
+            .status(400)
+            .json({
+                success: false,
+                error: {
+                    message: "Invalid file upload",
+                }
+            })
     }
 
     console.error(err);

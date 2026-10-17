@@ -6,7 +6,8 @@ import {
     text,
     timestamp,
     uniqueIndex,
-    index
+    index,
+    integer
 } from "drizzle-orm/pg-core"
 
 export const users = pgTable("users", {
@@ -221,6 +222,81 @@ export const tasks = pgTable("tasks", {
         table.status,
     ),
 ],)
+
+export const attachments = pgTable(
+    "attachments",
+    {
+        id: uuid("id")
+            .defaultRandom()
+            .primaryKey(),
+
+        taskId: uuid("taskId")
+            .notNull()
+            .references(
+                () => tasks.id,
+                {
+                    onDelete: "cascade",
+                }
+            ),
+
+        uploadedBy: uuid("uploaded_by")
+            .notNull()
+            .references(
+                () => users.id,
+                {
+                    onDelete: "restrict"
+                }
+            ),
+
+        originalName: varchar(
+            "original_name",
+            {
+                length: 255,
+            }
+        ).notNull(),
+
+        storageKey: varchar(
+            "storage_key",
+            {
+                length: 500,
+            }
+        ).notNull(),
+
+        mimeType: varchar(
+            "mime_type",
+            {
+                length: 100,
+            }
+        ).notNull(),
+
+        sizeBytes: integer(
+            "size_bytes",
+        ).notNull(),
+
+        createdAt: timestamp(
+            "created_at",
+            {
+                withTimezone: true,
+            },
+        )
+            .defaultNow()
+            .notNull(),
+    },
+
+    (table) => [
+        index(
+            "attachments_task_idx",
+        ).on(
+            table.taskId,
+        ),
+
+        index(
+            "attachments_uploaded_by_idx",
+        ).on(
+            table.uploadedBy,
+        )
+    ]
+)
 
 export const comments = pgTable("comments", {
     id: uuid("id").defaultRandom().primaryKey(),
