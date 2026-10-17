@@ -4,8 +4,6 @@ import { createWorkspaceSchema, updateWorkspaceScehma, workspaceIdSchema } from 
 import { createWorkspace, deleteWorkspace, getWorkspace, listWorkspaces, updateWorkspace } from "../controllers/workspace.controller";
 import { validate, validateParams } from "../middleware/validate.middleware";
 import { authorizeWorkspaceRoles } from "../middleware/wrokspace-authorization.middleware";
-import { addMember, listMembers, removeMember, updateMemberRole } from "../controllers/workspace-member.controller";
-import { addWorkspaceMemberSchema, updateWorkspaceMemberSchema, workspaceIdParamsSchema, workspaceMemberParamsSchema } from "../validators/workspace-member.validator";
 
 const router = Router();
 
@@ -46,58 +44,6 @@ router.delete(
         "OWNER"
     ),
     deleteWorkspace
-)
-
-router.get(
-    "/:workspaceId/members",
-    validateParams(workspaceIdParamsSchema),
-    authorizeWorkspaceRoles(
-        "OWNER",
-        "ADMIN",
-        "MEMBER"
-    ),
-    listMembers
-)
-
-router.post(
-    "/:workspaceId/members",
-    validateParams(
-        workspaceIdParamsSchema
-    ),
-    authorizeWorkspaceRoles(
-        "OWNER",
-        "ADMIN"
-    ),
-    validate(
-        addWorkspaceMemberSchema
-    ),
-    addMember
-)
-
-router.patch(
-    "/:workspaceId/members/:userId",
-    validateParams(
-        workspaceMemberParamsSchema
-    ),
-    authorizeWorkspaceRoles(
-        "OWNER",
-    ),
-    validate(
-        updateWorkspaceMemberSchema
-    ),
-    updateMemberRole
-)
-
-router.delete(
-    "/:workspaceId/members/:userId",
-    validateParams(
-        workspaceMemberParamsSchema
-    ),
-    authorizeWorkspaceRoles(
-        "OWNER",
-        "ADMIN"
-    ),
-    removeMember
 )
 
 export default router;

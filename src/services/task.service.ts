@@ -4,6 +4,7 @@ import * as projectRepository from '../repositories/project.repository'
 import * as workspaceMemberRepository from '../repositories/workspace-member.repository'
 import { NotFoundError, ValidationError } from '../errors';
 import type { CreateTaskInput, TaskListQuery, UpdateTaskInput } from '../validators/task.validator';
+import { enqueueTaskAssigned } from '../queues/notification.queue';
 
 const validateAssignee = async (
     workspaceId: string,
@@ -143,7 +144,8 @@ export const updateTask = async (
     workspaceId: string,
     projectId: string,
     taskId: string,
-    input: UpdateTaskInput
+    userId: string,
+    input: UpdateTaskInput,
 ) => {
 
     await validateProject(
@@ -155,6 +157,18 @@ export const updateTask = async (
         await validateAssignee(
             workspaceId,
             input.assignedTo
+        )
+    }
+
+    const existingTask = await taskRepository
+        .findTaskInProject(
+            projectId,
+            taskId,
+        );
+
+    if (!existingTask) {
+        throw new NotFoundError(
+            "Task not found"
         )
     }
 
@@ -172,9 +186,32 @@ export const updateTask = async (
     )
 
     if (!task) {
-        throw new NotFoundError(
-            "Task not found"
+        throw new Error(
+            "Something went wrong"
         )
+    }
+
+    const assigneeChanged = input.assignedTo !== undefined &&
+        input.assignedTo !== null &&
+        input.assignedTo !== existingTask.assignedTo
+
+
+    if (assigneeChanged) {
+        try {
+            await enqueueTaskAssigned({
+                taskId: task.id,
+                workspaceId,
+                projectId,
+                assignedTo: input.assignedTo!,
+                assignedBy: userId,
+                taskTitle: task.title
+            })
+        } catch (error) {
+            console.error(
+                "Failed to enqueue notification job",
+                error
+            )
+        }
     }
 
     return task;

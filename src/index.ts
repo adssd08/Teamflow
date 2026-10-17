@@ -9,6 +9,7 @@ import { NotFoundError } from './errors/not-found-error';
 import workspaceRoutes from './routes/workspace.routes';
 import projectRoutes from './routes/project.routes';
 import taskRoutes from './routes/task.routes'
+import workspaceMemberRoutes from './routes/workspace-members.routes'
 import { connectRedis } from './cache/redis';
 
 const app: Express = express();
@@ -21,6 +22,10 @@ app.use(cookieParser());
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/workspaces", workspaceRoutes)
+app.use(
+    "/workspaces/:workspaceId/members",
+    workspaceMemberRoutes
+)
 app.use(
     "/workspaces/:workspaceId/projects",
     projectRoutes,

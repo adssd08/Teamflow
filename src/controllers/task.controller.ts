@@ -55,7 +55,8 @@ export const updateTask = asyncHandler(
             req.params.workspaceId as string,
             req.params.projectId as string,
             req.params.taskId as string,
-            req.body
+            req.user!.id,
+            req.body,
         )
 
         res.status(200).json({

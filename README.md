@@ -51,6 +51,32 @@ npm start
 
 The server listens on port `3000` by default.
 
+## Run the notification worker
+
+Run the worker in a separate terminal with Redis available at the configured
+`REDIS_HOST` and `REDIS_PORT`:
+
+```sh
+npm run worker:notifications
+```
+
+For automatic restart during development:
+
+```sh
+npm run worker:notifications:dev
+```
+
+For production:
+
+```sh
+npm run build
+npm run worker:notifications:start
+```
+
+Use `tsx` to execute TypeScript files. To type-check, run
+`npx tsc --noEmit -p tsconfig.json` without source filenames; passing filenames
+to `tsc` bypasses the project configuration and triggers a TypeScript 7 error.
+
 ## Health endpoint
 
 ```sh

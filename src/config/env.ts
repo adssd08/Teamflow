@@ -24,6 +24,8 @@ const jwtRefreshExpiresIn = (
 
 const jwtRefreshExpiresInMs = ms(jwtRefreshExpiresIn)
 
+const redisUrl = `redis://${process.env.REDIS_HOST ?? "localhost"}:${process.env.REDIS_PORT ?? "6379"}`
+
 
 function isJwtDuration(value: string): value is NonNullable<SignOptions['expiresIn']> & string {
     return value.length <= 100 &&
@@ -48,5 +50,7 @@ export const env = {
     jwtRefreshSecret,
     jwtRefreshExpiresIn,
     jwtRefreshExpiresInMs,
-    redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
+    redisHost: process.env.REDIS_HOST ?? "localhost",
+    redisPort: process.env.REDIS_PORT ?? 6379,
+    redisUrl,
 }
